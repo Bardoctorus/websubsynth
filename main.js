@@ -1,23 +1,25 @@
 import { AudioContextManager } from './synth/core/AudioContextManager.js';
-import { OscillatorModule } from './synth/modules/OscillatorModule.js';
 import { GainModule } from './synth/modules/GainModule.js';
 import { FilterModule } from './synth/modules/FilterModule.js';
 import { VCAModule } from './synth/modules/VCAModule.js';
 import { MasterGainModule } from './synth/modules/MasterGainModule.js';
+import { SubharmonicEngine } from './synth/modules/SubharmonicEngine.js'; // New import
 
 // Create audio context
 const audioCtxManager = new AudioContextManager();
 const audioCtx = audioCtxManager.context;
 
 // Create synth modules - true analog signal chain
-const oscillator = new OscillatorModule(audioCtx);
 const gainStage = new GainModule(audioCtx);
 const filter = new FilterModule(audioCtx);
 const vca = new VCAModule(audioCtx);
 const masterGain = new MasterGainModule(audioCtx);
 
-// Create signal chain: Oscillator -> Gain -> Filter -> VCA -> Master -> Speakers
-oscillator.connect(gainStage.input);
+// Create subharmonic engine (contains VCO1, VCO2, and all sub oscillators)
+const subharmonicEngine = new SubharmonicEngine(audioCtx);
+
+// Create signal chain: SubharmonicEngine -> Gain -> Filter -> VCA -> Master -> Speakers
+subharmonicEngine.connect(gainStage.input);
 gainStage.connect(filter.input);
 filter.connect(vca.input);
 vca.connect(masterGain.input);
@@ -48,7 +50,7 @@ const noteFreqs = {
 // Export modules and state for UI to access
 window.synth = {
   audioCtxManager,
-  oscillator,
+  subharmonicEngine, // Main oscillator control now through engine
   gainStage,
   filter,
   vca,
@@ -72,7 +74,10 @@ document.addEventListener('keydown', (e) => {
 
   window.synth.currentKey = key;
   const freq = noteFreqs[key];
-  oscillator.setBaseFrequency(freq);
+  
+  // Set both VCO frequencies (for now, they track together like a unison mode)
+  subharmonicEngine.setVCO1Frequency(freq);
+  subharmonicEngine.setVCO2Frequency(freq);
   
   // Use VCA gate instead of oscillator noteOn
   vca.gateOn();
