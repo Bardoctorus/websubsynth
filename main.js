@@ -30,7 +30,25 @@ let synthPowered = false;
 let midiActive = false;
 let currentKey = null;
 
-// Note frequency mapping (QWERTY keyboard layout)
+// Note to semitone mapping (QWERTY keyboard layout)
+// Using A4 (440Hz) as reference (0 semitones)
+const noteSemitones = {
+  'a': -9,  // C4 (9 semitones below A4)
+  'w': -8,  // C#4
+  's': -7,  // D4
+  'e': -6,  // D#4
+  'd': -5,  // E4
+  'f': -4,  // F4
+  't': -3,  // F#4
+  'g': -2,  // G4
+  'y': -1,  // G#4
+  'h': 0,   // A4 (reference)
+  'u': 1,   // A#4
+  'j': 2,   // B4
+  'k': 3,   // C5
+};
+
+// Keep the old noteFreqs for reference/display purposes
 const noteFreqs = {
   'a': 261.63, // C4
   'w': 277.18, // C#4
@@ -47,6 +65,11 @@ const noteFreqs = {
   'k': 523.25, // C5
 };
 
+// Helper function to convert semitones to frequency ratio
+function semitonesToRatio(semitones) {
+  return Math.pow(2, semitones / 12);
+}
+
 // Export modules and state for UI to access
 window.synth = {
   audioCtxManager,
@@ -61,7 +84,8 @@ window.synth = {
   set midiActive(value) { midiActive = value; },
   get currentKey() { return currentKey; },
   set currentKey(value) { currentKey = value; },
-  noteFreqs
+  noteFreqs,
+  noteSemitones
 };
 
 // Keyboard event handlers
@@ -70,14 +94,14 @@ document.addEventListener('keydown', (e) => {
   if (e.repeat) return;
 
   const key = e.key.toLowerCase();
-  if (!(key in noteFreqs)) return;
+  if (!(key in noteSemitones)) return;
 
   window.synth.currentKey = key;
-  const freq = noteFreqs[key];
+  const semitones = noteSemitones[key];
   
-  // Set both VCO frequencies (for now, they track together like a unison mode)
-  subharmonicEngine.setVCO1Frequency(freq);
-  subharmonicEngine.setVCO2Frequency(freq);
+  // Set note offset for both VCOs (this works with their base frequency)
+  subharmonicEngine.setVCO1NoteOffset(semitones);
+  subharmonicEngine.setVCO2NoteOffset(semitones);
   
   // Use VCA gate instead of oscillator noteOn
   vca.gateOn();
@@ -91,6 +115,10 @@ document.addEventListener('keyup', (e) => {
 
   const key = e.key.toLowerCase();
   if (key === window.synth.currentKey) {
+    // Clear note offset (return to base frequency)
+    subharmonicEngine.setVCO1NoteOffset(0);
+    subharmonicEngine.setVCO2NoteOffset(0);
+    
     // Use VCA gate instead of oscillator noteOff
     vca.gateOff();
     window.synth.currentKey = null;
@@ -101,6 +129,32 @@ document.addEventListener('keyup', (e) => {
 function updateActiveNote(key) {
   const noteDisplay = document.getElementById('activeNote');
   if (noteDisplay) {
-    noteDisplay.textContent = key ? `Playing: ${key.toUpperCase()}` : 'No note playing';
+    if (key) {
+      const noteName = getNoteNameFromKey(key);
+      const freq = noteFreqs[key];
+      noteDisplay.textContent = `Playing: ${noteName} (${freq.toFixed(1)}Hz)`;
+    } else {
+      noteDisplay.textContent = 'No note playing';
+    }
   }
+}
+
+// Helper function to get musical note name from keyboard key
+function getNoteNameFromKey(key) {
+  const noteNames = {
+    'a': 'C4',
+    'w': 'C#4',
+    's': 'D4',
+    'e': 'D#4',
+    'd': 'E4',
+    'f': 'F4',
+    't': 'F#4',
+    'g': 'G4',
+    'y': 'G#4',
+    'h': 'A4',
+    'u': 'A#4',
+    'j': 'B4',
+    'k': 'C5'
+  };
+  return noteNames[key] || key.toUpperCase();
 }

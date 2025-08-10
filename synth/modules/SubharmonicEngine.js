@@ -69,7 +69,7 @@ export class SubharmonicEngine {
     return this.mainMixer.output;
   }
   
-  // VCO Control Methods
+  // VCO Control Methods - Base Frequency (for sliders)
   setVCO1Frequency(freq) {
     this.vco1.setBaseFrequency(freq);
     this.updateSubharmonicsForVCO(0); // Update subs that follow VCO1
@@ -80,6 +80,18 @@ export class SubharmonicEngine {
     this.updateSubharmonicsForVCO(1); // Update subs that follow VCO2
   }
   
+  // VCO Control Methods - Note Offset (for keyboard)
+  setVCO1NoteOffset(semitones) {
+    this.vco1.setNoteOffset(semitones);
+    this.updateSubharmonicsForVCO(0); // Update subs that follow VCO1
+  }
+  
+  setVCO2NoteOffset(semitones) {
+    this.vco2.setNoteOffset(semitones);
+    this.updateSubharmonicsForVCO(1); // Update subs that follow VCO2
+  }
+  
+  // VCO Waveform Controls
   setVCO1Waveform(waveform) {
     this.vco1.setWaveform(waveform);
   }
@@ -88,6 +100,7 @@ export class SubharmonicEngine {
     this.vco2.setWaveform(waveform);
   }
   
+  // VCO Level Controls
   setVCO1Level(level) {
     this.vco1Level.setGain(level);
   }
@@ -193,5 +206,22 @@ export class SubharmonicEngine {
   
   getSubVoiceParent(subIndex) {
     return this.routingMatrix.subVoiceParents[subIndex];
+  }
+  
+  // Convenience methods for getting current values (useful for UI sync)
+  getVCO1BaseFrequency() {
+    return this.vco1.baseFrequency;
+  }
+  
+  getVCO2BaseFrequency() {
+    return this.vco2.baseFrequency;
+  }
+  
+  getVCO1NoteOffset() {
+    return this.vco1.noteOffsetSemitones;
+  }
+  
+  getVCO2NoteOffset() {
+    return this.vco2.noteOffsetSemitones;
   }
 }
