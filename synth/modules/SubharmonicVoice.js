@@ -28,15 +28,21 @@ export class SubharmonicVoice {
   }
   
   updateFrequency() {
-    // Get frequency directly from main oscillator's current baseFrequency
-    const mainFreq = this.mainOscillator.baseFrequency;
+    // Calculate the current effective frequency of the main oscillator
+    // This includes both base frequency AND note offset
+    const baseFreq = this.mainOscillator.baseFrequency;
+    const noteOffset = this.mainOscillator.noteOffsetSemitones;
     
     // Defensive check - don't update if main frequency isn't set yet
-    if (typeof mainFreq !== 'number' || !isFinite(mainFreq) || mainFreq <= 0) {
+    if (typeof baseFreq !== 'number' || !isFinite(baseFreq) || baseFreq <= 0) {
       return;
     }
     
-    const subFreq = this.calculator.calculateSubharmonicFreq(mainFreq, this.division);
+    // Calculate the current effective frequency (base + note offset)
+    const currentMainFreq = baseFreq * Math.pow(2, noteOffset / 12);
+    
+    // Calculate subharmonic frequency from the current effective frequency
+    const subFreq = this.calculator.calculateSubharmonicFreq(currentMainFreq, this.division);
     
     // Double-check the calculated frequency is valid
     if (isFinite(subFreq) && subFreq > 0) {

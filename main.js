@@ -115,9 +115,8 @@ document.addEventListener('keyup', (e) => {
 
   const key = e.key.toLowerCase();
   if (key === window.synth.currentKey) {
-    // Clear note offset (return to base frequency)
-    subharmonicEngine.setVCO1NoteOffset(0);
-    subharmonicEngine.setVCO2NoteOffset(0);
+    // Don't change frequency on release - just gate off
+    // The oscillators should stay at their base frequency (slider position)
     
     // Use VCA gate instead of oscillator noteOff
     vca.gateOff();
