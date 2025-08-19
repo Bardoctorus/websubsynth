@@ -157,3 +157,51 @@ function getNoteNameFromKey(key) {
   };
   return noteNames[key] || key.toUpperCase();
 }
+
+// --- Oscilloscope Setup ---
+const oscilloscopeCanvas = document.getElementById('oscilloscope');
+const oscilloscopeCtx = oscilloscopeCanvas.getContext('2d');
+
+// Create an analyser node and connect it to the master output
+const analyser = audioCtx.createAnalyser();
+analyser.fftSize = 1024;
+const bufferLength = analyser.fftSize;
+const dataArray = new Uint8Array(bufferLength);
+
+// Connect analyser after masterGain, before destination
+masterGain.output.disconnect();
+masterGain.output.connect(analyser);
+analyser.connect(audioCtx.destination);
+
+function drawOscilloscope() {
+  requestAnimationFrame(drawOscilloscope);
+
+  analyser.getByteTimeDomainData(dataArray);
+
+  oscilloscopeCtx.clearRect(0, 0, oscilloscopeCanvas.width, oscilloscopeCanvas.height);
+
+  oscilloscopeCtx.lineWidth = 2;
+  oscilloscopeCtx.strokeStyle = '#00FF88';
+  oscilloscopeCtx.beginPath();
+
+  const width = oscilloscopeCanvas.width;
+  const height = oscilloscopeCanvas.height;
+  const sliceWidth = width / bufferLength;
+
+  let x = 0;
+  for (let i = 0; i < bufferLength; i++) {
+    const v = dataArray[i] / 128.0;
+    const y = (v * height) / 2;
+    if (i === 0) {
+      oscilloscopeCtx.moveTo(x, y);
+    } else {
+      oscilloscopeCtx.lineTo(x, y);
+    }
+    x += sliceWidth;
+  }
+  oscilloscopeCtx.lineTo(width, height / 2);
+  oscilloscopeCtx.stroke();
+}
+
+// Start drawing
+drawOscilloscope();
