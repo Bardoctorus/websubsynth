@@ -8,8 +8,13 @@
 <body>
   <h1>Subharmonicon Web</h1>
 
-  <!-- Main Control Header -->
-  <section class="main-header">
+  <!-- Visualizer (add your canvas or SVG here) -->
+  <div id="visualizer" style="width:100%;height:80px;background:#222;margin-bottom:10px;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+    <span style="color:#fff;opacity:0.7;">[Visualizer]</span>
+  </div>
+
+  <!-- Main header: Power, Routing, Keyboard -->
+  <section class="main-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
     <div class="header-left">
       <h2>Power</h2>
       <label class="toggle">
@@ -18,8 +23,7 @@
         Power On/Off
       </label>
     </div>
-
-    <div class="header-center">
+    <div class="header-center" style="flex:1;">
       <h2>Signal Routing</h2>
       <div class="signal-chain">
         <div class="module-box" id="oscModule">
@@ -30,9 +34,7 @@
             <div>Wave: <span id="oscWave">sine</span></div>
           </div>
         </div>
-        
         <div class="signal-arrow">→</div>
-        
         <div class="module-box" id="gainModule">
           <h3>Gain Stage</h3>
           <div class="module-status">OFF</div>
@@ -40,9 +42,7 @@
             <div>Gain: <span id="gainValue">1.0</span></div>
           </div>
         </div>
-        
         <div class="signal-arrow">→</div>
-        
         <div class="module-box" id="filterModule">
           <h3>Filter</h3>
           <div class="module-status">OFF</div>
@@ -51,9 +51,7 @@
             <div>Res: <span id="filterRes">1.0</span></div>
           </div>
         </div>
-        
         <div class="signal-arrow">→</div>
-        
         <div class="module-box" id="vcaModule">
           <h3>VCA</h3>
           <div class="module-status">OFF</div>
@@ -62,9 +60,7 @@
             <div>Env: <span id="vcaEnv">A/D</span></div>
           </div>
         </div>
-        
         <div class="signal-arrow">→</div>
-        
         <div class="module-box" id="masterModule">
           <h3>Master Out</h3>
           <div class="module-status">OFF</div>
@@ -72,16 +68,13 @@
             <div>Volume: <span id="masterValue">0.1</span></div>
           </div>
         </div>
-        
         <div class="signal-arrow">→</div>
-        
         <div class="module-box speakers">
           <h3>🔊</h3>
           <div class="module-status">SPEAKERS</div>
         </div>
       </div>
     </div>
-
     <div class="header-right">
       <h2>Input</h2>
       <label class="toggle">
@@ -89,7 +82,6 @@
         <span class="toggle-slider"></span>
         Virtual Keyboard (QWERTY)
       </label>
-      
       <div class="keyboard-info-compact">
         <p>Keys: A W S E D F T G Y H U J K</p>
         <div id="activeNote">No note playing</div>
@@ -97,289 +89,279 @@
     </div>
   </section>
 
-
-<!-- VCO 1 Controls -->
-<section class="control-section">
-  <h2>VCO 1</h2>
-  <div class="control-group">
-    <label>
-      Frequency:
-      <input type="range" id="vco1FrequencySlider" min="50" max="1000" value="440" step="1">
-      <span id="vco1FreqDisplay">440</span> Hz
-    </label>
-  </div>
-  
-  <div class="control-group">
-    <label>
-      Waveform:
-      <select id="vco1WaveformSelect">
-        <option value="sine">Sine</option>
-        <option value="square">Square</option>
-        <option value="sawtooth">Sawtooth</option>
-        <option value="triangle">Triangle</option>
-      </select>
-    </label>
-  </div>
-  
-  <div class="control-group">
-    <label>
-      VCO 1 Level:
-      <input type="range" id="vco1LevelSlider" min="0" max="1" step="0.01" value="0.5">
-      <span id="vco1LevelDisplay">0.50</span>
-    </label>
-  </div>
-</section>
-
-<!-- VCO 2 Controls -->
-<section class="control-section">
-  <h2>VCO 2</h2>
-  <div class="control-group">
-    <label>
-      Frequency:
-      <input type="range" id="vco2FrequencySlider" min="50" max="1000" value="440" step="1">
-      <span id="vco2FreqDisplay">440</span> Hz
-    </label>
-  </div>
-  
-  <div class="control-group">
-    <label>
-      Waveform:
-      <select id="vco2WaveformSelect">
-        <option value="sine">Sine</option>
-        <option value="square">Square</option>
-        <option value="sawtooth">Sawtooth</option>
-        <option value="triangle">Triangle</option>
-      </select>
-    </label>
-  </div>
-  
-  <div class="control-group">
-    <label>
-      VCO 2 Level:
-      <input type="range" id="vco2LevelSlider" min="0" max="1" step="0.01" value="0.5">
-      <span id="vco2LevelDisplay">0.50</span>
-    </label>
-  </div>
-</section>
-
-<!-- Subharmonic Oscillators -->
-<section class="control-section">
-  <h2>Subharmonic Oscillators</h2>
-  
-  <div class="subharmonic-voices">
-    <!-- Sub Osc 1 (follows VCO1) -->
-    <div class="sub-voice-group" data-voice="0" data-parent="vco1">
-      <h3>Sub Osc 1 (VCO1 /2)</h3>
-      <div class="sub-controls">
-        <label>
-          <input type="checkbox" class="sub-enable" checked>
-          Enable
-        </label>
-        <label>
-          Division:
-          <select class="sub-division">
-            <option value="1">1 (Unison)</option>
-            <option value="2" selected>/2</option>
-            <option value="3">/3</option>
-            <option value="4">/4</option>
-            <option value="5">/5</option>
-            <option value="6">/6</option>
-            <option value="7">/7</option>
-            <option value="8">/8</option>
-            <option value="9">/9</option>
-            <option value="10">/10</option>
-            <option value="11">/11</option>
-            <option value="12">/12</option>
-            <option value="13">/13</option>
-            <option value="14">/14</option>
-            <option value="15">/15</option>
-            <option value="16">/16</option>
-          </select>
-        </label>
-        <label>
-          Level:
-          <input type="range" class="sub-level" min="0" max="1" step="0.01" value="0.3">
-          <span class="sub-level-display">0.30</span>
-        </label>
-        <label>
-          Wave:
-          <select class="sub-waveform">
-            <option value="sine" selected>Sine</option>
-            <option value="square">Square</option>
-            <option value="sawtooth">Sawtooth</option>
-            <option value="triangle">Triangle</option>
-          </select>
-        </label>
-        <label>
-          Follows:
-          <select class="sub-parent">
-            <option value="0" selected>VCO 1</option>
-            <option value="1">VCO 2</option>
-          </select>
-        </label>
-      </div>
+  <!-- Main voices: VCO1 and VCO2 side by side, each with subharmonics below -->
+  <div style="display:flex;gap:16px;align-items:flex-start;margin-top:16px;">
+    <!-- VCO 1 + its subharmonics -->
+    <div style="flex:1;min-width:0;">
+      <section class="control-section">
+        <h2>VCO 1</h2>
+        <div class="control-group">
+          <label>
+            Frequency:
+            <input type="range" id="vco1FrequencySlider" min="50" max="1000" value="440" step="1">
+            <span id="vco1FreqDisplay">440</span> Hz
+          </label>
+        </div>
+        <div class="control-group">
+          <label>
+            Waveform:
+            <select id="vco1WaveformSelect">
+              <option value="sine">Sine</option>
+              <option value="square">Square</option>
+              <option value="sawtooth">Sawtooth</option>
+              <option value="triangle">Triangle</option>
+            </select>
+          </label>
+        </div>
+        <div class="control-group">
+          <label>
+            VCO 1 Level:
+            <input type="range" id="vco1LevelSlider" min="0" max="1" step="0.01" value="0.5">
+            <span id="vco1LevelDisplay">0.50</span>
+          </label>
+        </div>
+      </section>
+      <!-- Subharmonics for VCO1 -->
+      <section class="control-section">
+        <h3>Subharmonic Oscillators (VCO 1)</h3>
+        <div class="subharmonic-voices">
+          <!-- Sub Osc 1 -->
+          <div class="sub-voice-group" data-voice="0" data-parent="vco1">
+            <h3>Sub Osc 1 (VCO1 /2)</h3>
+            <div class="sub-controls">
+              <label><input type="checkbox" class="sub-enable" checked> Enable</label>
+              <label>
+                Division:
+                <select class="sub-division">
+                  <option value="1">1 (Unison)</option>
+                  <option value="2" selected>/2</option>
+                  <option value="3">/3</option>
+                  <option value="4">/4</option>
+                  <option value="5">/5</option>
+                  <option value="6">/6</option>
+                  <option value="7">/7</option>
+                  <option value="8">/8</option>
+                  <option value="9">/9</option>
+                  <option value="10">/10</option>
+                  <option value="11">/11</option>
+                  <option value="12">/12</option>
+                  <option value="13">/13</option>
+                  <option value="14">/14</option>
+                  <option value="15">/15</option>
+                  <option value="16">/16</option>
+                </select>
+              </label>
+              <label>
+                Level:
+                <input type="range" class="sub-level" min="0" max="1" step="0.01" value="0.3">
+                <span class="sub-level-display">0.30</span>
+              </label>
+              <label>
+                Wave:
+                <select class="sub-waveform">
+                  <option value="sine" selected>Sine</option>
+                  <option value="square">Square</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="triangle">Triangle</option>
+                </select>
+              </label>
+              <label>
+                Follows:
+                <select class="sub-parent">
+                  <option value="0" selected>VCO 1</option>
+                  <option value="1">VCO 2</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <!-- Sub Osc 2 -->
+          <div class="sub-voice-group" data-voice="1" data-parent="vco1">
+            <h3>Sub Osc 2 (VCO1 /3)</h3>
+            <div class="sub-controls">
+              <label><input type="checkbox" class="sub-enable" checked> Enable</label>
+              <label>
+                Division:
+                <select class="sub-division">
+                  <option value="1">1 (Unison)</option>
+                  <option value="2">/2</option>
+                  <option value="3" selected>/3</option>
+                  <option value="4">/4</option>
+                  <option value="5">/5</option>
+                  <option value="6">/6</option>
+                  <option value="7">/7</option>
+                  <option value="8">/8</option>
+                  <option value="9">/9</option>
+                  <option value="10">/10</option>
+                  <option value="11">/11</option>
+                  <option value="12">/12</option>
+                  <option value="13">/13</option>
+                  <option value="14">/14</option>
+                  <option value="15">/15</option>
+                  <option value="16">/16</option>
+                </select>
+              </label>
+              <label>
+                Level:
+                <input type="range" class="sub-level" min="0" max="1" step="0.01" value="0.25">
+                <span class="sub-level-display">0.25</span>
+              </label>
+              <label>
+                Wave:
+                <select class="sub-waveform">
+                  <option value="sine" selected>Sine</option>
+                  <option value="square">Square</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="triangle">Triangle</option>
+                </select>
+              </label>
+              <label>
+                Follows:
+                <select class="sub-parent">
+                  <option value="0" selected>VCO 1</option>
+                  <option value="1">VCO 2</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-
-    <!-- Sub Osc 2 (follows VCO1) -->
-    <div class="sub-voice-group" data-voice="1" data-parent="vco1">
-      <h3>Sub Osc 2 (VCO1 /3)</h3>
-      <div class="sub-controls">
-        <label>
-          <input type="checkbox" class="sub-enable" checked>
-          Enable
-        </label>
-        <label>
-          Division:
-          <select class="sub-division">
-            <option value="1">1 (Unison)</option>
-            <option value="2">/2</option>
-            <option value="3" selected>/3</option>
-            <option value="4">/4</option>
-            <option value="5">/5</option>
-            <option value="6">/6</option>
-            <option value="7">/7</option>
-            <option value="8">/8</option>
-            <option value="9">/9</option>
-            <option value="10">/10</option>
-            <option value="11">/11</option>
-            <option value="12">/12</option>
-            <option value="13">/13</option>
-            <option value="14">/14</option>
-            <option value="15">/15</option>
-            <option value="16">/16</option>
-          </select>
-        </label>
-        <label>
-          Level:
-          <input type="range" class="sub-level" min="0" max="1" step="0.01" value="0.25">
-          <span class="sub-level-display">0.25</span>
-        </label>
-        <label>
-          Wave:
-          <select class="sub-waveform">
-            <option value="sine" selected>Sine</option>
-            <option value="square">Square</option>
-            <option value="sawtooth">Sawtooth</option>
-            <option value="triangle">Triangle</option>
-          </select>
-        </label>
-        <label>
-          Follows:
-          <select class="sub-parent">
-            <option value="0" selected>VCO 1</option>
-            <option value="1">VCO 2</option>
-          </select>
-        </label>
-      </div>
-    </div>
-
-    <!-- Sub Osc 3 (follows VCO2) -->
-    <div class="sub-voice-group" data-voice="2" data-parent="vco2">
-      <h3>Sub Osc 3 (VCO2 /2)</h3>
-      <div class="sub-controls">
-        <label>
-          <input type="checkbox" class="sub-enable" checked>
-          Enable
-        </label>
-        <label>
-          Division:
-          <select class="sub-division">
-            <option value="1">1 (Unison)</option>
-            <option value="2" selected>/2</option>
-            <option value="3">/3</option>
-            <option value="4">/4</option>
-            <option value="5">/5</option>
-            <option value="6">/6</option>
-            <option value="7">/7</option>
-            <option value="8">/8</option>
-            <option value="9">/9</option>
-            <option value="10">/10</option>
-            <option value="11">/11</option>
-            <option value="12">/12</option>
-            <option value="13">/13</option>
-            <option value="14">/14</option>
-            <option value="15">/15</option>
-            <option value="16">/16</option>
-          </select>
-        </label>
-        <label>
-          Level:
-          <input type="range" class="sub-level" min="0" max="1" step="0.01" value="0.3">
-          <span class="sub-level-display">0.30</span>
-        </label>
-        <label>
-          Wave:
-          <select class="sub-waveform">
-            <option value="sine" selected>Sine</option>
-            <option value="square">Square</option>
-            <option value="sawtooth">Sawtooth</option>
-            <option value="triangle">Triangle</option>
-          </select>
-        </label>
-        <label>
-          Follows:
-          <select class="sub-parent">
-            <option value="0">VCO 1</option>
-            <option value="1" selected>VCO 2</option>
-          </select>
-        </label>
-      </div>
-    </div>
-
-    <!-- Sub Osc 4 (follows VCO2) -->
-    <div class="sub-voice-group" data-voice="3" data-parent="vco2">
-      <h3>Sub Osc 4 (VCO2 /4)</h3>
-      <div class="sub-controls">
-        <label>
-          <input type="checkbox" class="sub-enable" checked>
-          Enable
-        </label>
-        <label>
-          Division:
-          <select class="sub-division">
-            <option value="1">1 (Unison)</option>
-            <option value="2">/2</option>
-            <option value="3">/3</option>
-            <option value="4" selected>/4</option>
-            <option value="5">/5</option>
-            <option value="6">/6</option>
-            <option value="7">/7</option>
-            <option value="8">/8</option>
-            <option value="9">/9</option>
-            <option value="10">/10</option>
-            <option value="11">/11</option>
-            <option value="12">/12</option>
-            <option value="13">/13</option>
-            <option value="14">/14</option>
-            <option value="15">/15</option>
-            <option value="16">/16</option>
-          </select>
-        </label>
-        <label>
-          Level:
-          <input type="range" class="sub-level" min="0" max="1" step="0.01" value="0.2">
-          <span class="sub-level-display">0.20</span>
-        </label>
-        <label>
-          Wave:
-          <select class="sub-waveform">
-            <option value="sine" selected>Sine</option>
-            <option value="square">Square</option>
-            <option value="sawtooth">Sawtooth</option>
-            <option value="triangle">Triangle</option>
-          </select>
-        </label>
-        <label>
-          Follows:
-          <select class="sub-parent">
-            <option value="0">VCO 1</option>
-            <option value="1" selected>VCO 2</option>
-          </select>
-        </label>
-      </div>
+    <!-- VCO 2 + its subharmonics -->
+    <div style="flex:1;min-width:0;">
+      <section class="control-section">
+        <h2>VCO 2</h2>
+        <div class="control-group">
+          <label>
+            Frequency:
+            <input type="range" id="vco2FrequencySlider" min="50" max="1000" value="440" step="1">
+            <span id="vco2FreqDisplay">440</span> Hz
+          </label>
+        </div>
+        <div class="control-group">
+          <label>
+            Waveform:
+            <select id="vco2WaveformSelect">
+              <option value="sine">Sine</option>
+              <option value="square">Square</option>
+              <option value="sawtooth">Sawtooth</option>
+              <option value="triangle">Triangle</option>
+            </select>
+          </label>
+        </div>
+        <div class="control-group">
+          <label>
+            VCO 2 Level:
+            <input type="range" id="vco2LevelSlider" min="0" max="1" step="0.01" value="0.5">
+            <span id="vco2LevelDisplay">0.50</span>
+          </label>
+        </div>
+      </section>
+      <!-- Subharmonics for VCO2 -->
+      <section class="control-section">
+        <h3>Subharmonic Oscillators (VCO 2)</h3>
+        <div class="subharmonic-voices">
+          <!-- Sub Osc 3 -->
+          <div class="sub-voice-group" data-voice="2" data-parent="vco2">
+            <h3>Sub Osc 3 (VCO2 /2)</h3>
+            <div class="sub-controls">
+              <label><input type="checkbox" class="sub-enable" checked> Enable</label>
+              <label>
+                Division:
+                <select class="sub-division">
+                  <option value="1">1 (Unison)</option>
+                  <option value="2" selected>/2</option>
+                  <option value="3">/3</option>
+                  <option value="4">/4</option>
+                  <option value="5">/5</option>
+                  <option value="6">/6</option>
+                  <option value="7">/7</option>
+                  <option value="8">/8</option>
+                  <option value="9">/9</option>
+                  <option value="10">/10</option>
+                  <option value="11">/11</option>
+                  <option value="12">/12</option>
+                  <option value="13">/13</option>
+                  <option value="14">/14</option>
+                  <option value="15">/15</option>
+                  <option value="16">/16</option>
+                </select>
+              </label>
+              <label>
+                Level:
+                <input type="range" class="sub-level" min="0" max="1" step="0.01" value="0.3">
+                <span class="sub-level-display">0.30</span>
+              </label>
+              <label>
+                Wave:
+                <select class="sub-waveform">
+                  <option value="sine" selected>Sine</option>
+                  <option value="square">Square</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="triangle">Triangle</option>
+                </select>
+              </label>
+              <label>
+                Follows:
+                <select class="sub-parent">
+                  <option value="0">VCO 1</option>
+                  <option value="1" selected>VCO 2</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <!-- Sub Osc 4 -->
+          <div class="sub-voice-group" data-voice="3" data-parent="vco2">
+            <h3>Sub Osc 4 (VCO2 /4)</h3>
+            <div class="sub-controls">
+              <label><input type="checkbox" class="sub-enable" checked> Enable</label>
+              <label>
+                Division:
+                <select class="sub-division">
+                  <option value="1">1 (Unison)</option>
+                  <option value="2">/2</option>
+                  <option value="3">/3</option>
+                  <option value="4" selected>/4</option>
+                  <option value="5">/5</option>
+                  <option value="6">/6</option>
+                  <option value="7">/7</option>
+                  <option value="8">/8</option>
+                  <option value="9">/9</option>
+                  <option value="10">/10</option>
+                  <option value="11">/11</option>
+                  <option value="12">/12</option>
+                  <option value="13">/13</option>
+                  <option value="14">/14</option>
+                  <option value="15">/15</option>
+                  <option value="16">/16</option>
+                </select>
+              </label>
+              <label>
+                Level:
+                <input type="range" class="sub-level" min="0" max="1" step="0.01" value="0.2">
+                <span class="sub-level-display">0.20</span>
+              </label>
+              <label>
+                Wave:
+                <select class="sub-waveform">
+                  <option value="sine" selected>Sine</option>
+                  <option value="square">Square</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="triangle">Triangle</option>
+                </select>
+              </label>
+              <label>
+                Follows:
+                <select class="sub-parent">
+                  <option value="0">VCO 1</option>
+                  <option value="1" selected>VCO 2</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
-</section>
 
   <!-- Filter Controls -->
   <section class="control-section">
@@ -391,7 +373,6 @@
         <span id="cutoffDisplay">2000</span> Hz
       </label>
     </div>
-    
     <div class="control-group">
       <label>
         Resonance (Q):
@@ -411,7 +392,6 @@
         <span id="attackDisplay">0.010</span> s
       </label>
     </div>
-    
     <div class="control-group">
       <label>
         Decay:
@@ -419,7 +399,6 @@
         <span id="decayDisplay">0.500</span> s
       </label>
     </div>
-    
     <div class="control-group">
       <label>
         Sustain Level:
@@ -427,7 +406,6 @@
         <span id="sustainDisplay">0.30</span>
       </label>
     </div>
-    
     <div class="control-group">
       <label>
         Release:
@@ -447,7 +425,6 @@
         <span id="gainDisplay">1.0</span>
       </label>
     </div>
-    
     <div class="control-group">
       <label>
         Master Volume:
